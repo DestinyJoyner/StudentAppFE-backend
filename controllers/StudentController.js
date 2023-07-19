@@ -3,9 +3,11 @@ const express = require("express");
 const student = express.Router();
 const {students} = require("../data/StudentData.json");
 
+// GET ALL STUDENTS -> 
+// min/max (by id value) && start/limit (return certain number of students) queries included
 student.get("/", (req, res) => {
   const { min, max, start, limit } = req.query;
-  //   if min/ max for id number limits
+
   // set default if min isn't included
   if (min || max) {
     const allStudentIDValues = students.map(({ id }) => +id);
@@ -33,16 +35,20 @@ student.get("/", (req, res) => {
   if(start || limit){
     // default values for limit
     const defaultLimit = limit <= 0 ? 1 : limit > students.length ? students.length : +limit
-    const startLimit = start <= 0  ? 1: +start
-    const maxNumOfStudentsAllowed = students.length - startLimit
+
+    const startLimit = start <= 0  ? 1 : +start
+
+    const maxNumOfStudentsAllowed = (students.length - startLimit) +1
+
     const maxNumStudents = defaultLimit > maxNumOfStudentsAllowed ? maxNumOfStudentsAllowed : defaultLimit 
    
     const limitStudents = []
-    for (let i = startLimit -1;limitStudents.length <= maxNumStudents;i++){
+    for (let i = startLimit -1;limitStudents.length < maxNumStudents;i++){
         if(students[i]){
             limitStudents.push(students[i])
         }   
     }
+
     if(limitStudents.length > 0){
         res.status(200).json(limitStudents)
     }
@@ -57,6 +63,7 @@ student.get("/", (req, res) => {
   }
 });
 
+// GET BY STUDENT ID -> GET ONE
 student.get("/:studentId", (req, res) => {
   const { studentId } = req.params;
   const checkifNumber = Number.isInteger(+studentId);
